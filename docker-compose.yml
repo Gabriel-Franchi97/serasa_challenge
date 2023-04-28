@@ -1,0 +1,57 @@
+version: "3.8"
+
+x-build: &default-build
+  context: .
+  dockerfile: Dockerfile.dev
+
+services:
+  db:
+    container_name: serasa-db
+    image: postgres:10.19-alpine
+    env_file: .env
+    environment:
+      POSTGRES_SERVER: ${DB_SERVER}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    networks:
+      - backend
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    container_name: serasa
+    build: *default-build
+    env_file: .env
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    volumes:
+      - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+    command:
+      [
+        "./scripts/start.sh",
+      ]
+
+  lint:
+    container_name: serasa-lint
+    build: *default-build
+    working_dir: /app
+    volumes:
+      - .:/app
+    networks:
+      - backend
+    command: ["./scripts/start-lint.sh"]
+
+networks:
+  backend:
