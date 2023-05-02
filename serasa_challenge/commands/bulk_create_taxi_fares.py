@@ -4,7 +4,7 @@ import pandas as pd
 
 from sqlalchemy.orm import Session
 
-from serasa_challenge.db.deps import get_db
+from serasa_challenge.db.deps import get_batch_db
 from serasa_challenge.db.models import TaxiFare
 
 
@@ -37,6 +37,6 @@ if __name__ == "__main__":
 
     taxi_fares = pd.read_parquet(args.file)
 
-    with get_db() as db:
+    with get_batch_db() as db:
         with db.begin():
             bulk_create_taxi_fares(db, taxi_fares)
