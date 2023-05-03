@@ -53,11 +53,8 @@ class TaxiFare(Base):
 
     def save(self, db: Session, commit: bool = True) -> None:
         db.add(self)
-        try:
-            if commit:
-                db.commit()
-                db.refresh(self)
-            else:
-                db.flush()
-        except IntegrityError as e:
-            self._raise_validation_exception(e)
+        if commit:
+            db.commit()
+            db.refresh(self)
+        else:
+            db.flush()
