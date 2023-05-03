@@ -3,7 +3,6 @@ from typing import Optional
 
 import sqlalchemy as sa
 
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from serasa_challenge.db.base import Base
